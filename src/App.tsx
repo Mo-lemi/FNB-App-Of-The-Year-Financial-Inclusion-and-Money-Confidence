@@ -10,6 +10,7 @@ import Today from './components/Today'
 import AddEntry from './components/AddEntry'
 import Insights from './components/Insights'
 import Settings from './components/Settings'
+import Icon, { type IconName } from './components/Icon'
 
 export type Tab = 'today' | 'add' | 'insights' | 'settings'
 
@@ -70,11 +71,11 @@ export default function App() {
     },
   }
 
-  const navItems: { id: Tab; ico: string; label: string }[] = [
-    { id: 'today', ico: '◉', label: t('navToday') },
-    { id: 'add', ico: '+', label: t('navAdd') },
-    { id: 'insights', ico: '✦', label: t('navInsights') },
-    { id: 'settings', ico: '⚙', label: t('navSettings') },
+  const navItems: { id: Tab; ico: IconName; label: string }[] = [
+    { id: 'today', ico: 'home', label: t('navToday') },
+    { id: 'add', ico: 'plus', label: t('navAdd') },
+    { id: 'insights', ico: 'chart', label: t('navInsights') },
+    { id: 'settings', ico: 'settings', label: t('navSettings') },
   ]
 
   return (
@@ -94,7 +95,9 @@ export default function App() {
               aria-current={tab === n.id ? 'page' : undefined}
               onClick={() => ctx.go(n.id)}
             >
-              <span className="ico" aria-hidden="true">{n.ico}</span>
+              <span className="ico">
+                <Icon name={n.ico} size={22} />
+              </span>
               {n.label}
             </button>
           ))}

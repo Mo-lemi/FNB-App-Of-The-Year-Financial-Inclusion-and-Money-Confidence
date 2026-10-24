@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Bill } from '../lib/types'
 import { newId, rand } from '../lib/money'
 import { ordinal } from '../lib/insights'
+import Icon from './Icon'
 
 export default function BillsEditor({ bills, onChange }: { bills: Bill[]; onChange: (b: Bill[]) => void }) {
   const [name, setName] = useState('')
@@ -21,7 +22,7 @@ export default function BillsEditor({ bills, onChange }: { bills: Bill[]; onChan
               </div>
               <div className="amt">{rand(b.amount)}</div>
               <button className="icon-btn" aria-label={`Remove ${b.name}`} onClick={() => onChange(bills.filter((x) => x.id !== b.id))}>
-                ✕
+                <Icon name="x" size={16} />
               </button>
             </li>
           ))}

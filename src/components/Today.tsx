@@ -5,6 +5,7 @@ import { rand } from '../lib/money'
 import { parseISO, shortDate } from '../lib/dates'
 import ForecastChart from './ForecastChart'
 import TxnList from './TxnList'
+import Icon from './Icon'
 
 interface Props {
   ctx: Ctx
@@ -12,12 +13,28 @@ interface Props {
   t: (k: TKey) => string
 }
 
+/** One sentence under the number explaining why it is what it is. */
+function reason(f: Forecast): string {
+  if (f.confidence === 'learning') return 'Based on your estimate for now. It gets sharper as you log your days.'
+  if (f.pinch?.bills.length) {
+    const b = f.pinch.bills[0]
+    return `Keeping enough back for ${b.name} (${rand(b.amount)}) on ${shortDate(f.pinch.date)}.`
+  }
+  if (f.pinch) return `Your slower days catch up with you around ${shortDate(f.pinch.date)}, so this plays it safe.`
+  if (f.leanWeek) return 'A slow week is coming, so this plays it safe.'
+  return 'Your bills for the next 14 days are covered.'
+}
+
 export default function Today({ ctx, f, t }: Props) {
   const { profile, txns } = ctx.data
   const p = profile!
   const todayLabel = parseISO(f.today).toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long' })
-  const goalPct = p.bufferGoal > 0 ? Math.min(100, (f.buffer / p.bufferGoal) * 100) : 0
   const usualLow = f.days.reduce((lo, d) => (d.expectedBalance < lo.expectedBalance ? d : lo), f.days[0])
+  const overdue = f.overdueBills[0]
+
+  const exitDemo = () => {
+    if (confirm('Leave the demo? You can start with your own details.')) ctx.setData(() => ({ profile: null, txns: [], bills: [] }))
+  }
 
   return (
     <>
@@ -28,160 +45,114 @@ export default function Today({ ctx, f, t }: Props) {
           </h1>
           <div className="sub">{todayLabel}</div>
         </div>
-        {p.isDemo && <span className="badge">Demo</span>}
+        {p.isDemo && (
+          <button className="pill-btn" onClick={exitDemo}>
+            <Icon name="logout" size={16} /> Exit demo
+          </button>
+        )}
       </header>
 
       <section className={`card hero ${f.status}`} aria-live="polite">
         <div className="label">{t('safeToday')}</div>
         <div className="amount">{rand(f.safeToday)}</div>
         <div className="status">{t(f.status)}</div>
-        <div className="meta">
-          <span>
-            {t('spentToday')}: <b>{rand(f.spentToday)}</b>
-          </span>
-          <span>
-            {t('earnedToday')}: <b>{rand(f.earnedToday)}</b>
-          </span>
-        </div>
-        {f.confidence === 'learning' && (
-          <p style={{ marginTop: 10, fontSize: '0.8125rem' }}>
-            Based on your estimate for now. It gets sharper as you log your days.
-          </p>
-        )}
+        <p className="reason">{reason(f)}</p>
+        <dl className="hero-stats">
+          <div>
+            <dt>{t('spentToday')}</dt>
+            <dd>{rand(f.spentToday)}</dd>
+          </div>
+          <div>
+            <dt>{t('balance')}</dt>
+            <dd>{rand(f.balance)}</dd>
+          </div>
+          <div>
+            <dt>{t('buffer')}</dt>
+            <dd>
+              {rand(f.buffer)}
+              {p.bufferGoal > 0 && <span className="of"> / {rand(p.bufferGoal)}</span>}
+            </dd>
+          </div>
+        </dl>
       </section>
 
-      {f.overdueBills.map((b) => (
-        <section key={b.id} className="card alert bad">
-          <span className="icon" aria-hidden="true">⏰</span>
+      {overdue ? (
+        <section className="card action">
+          <span className="action-icon bad">
+            <Icon name="clock" />
+          </span>
           <div className="body">
             <h2>
-              {b.name} ({rand(b.amount)}) is due
+              {overdue.name} ({rand(overdue.amount)}) is due
             </h2>
-            <p>We've already set this money aside in today's amount.</p>
-            <div className="actions">
-              <button
-                className="btn"
-                onClick={() =>
-                  ctx.addTxn(
-                    { date: f.today, kind: 'expense', amount: b.amount, category: 'bills', note: b.name },
-                    `${b.name} marked as paid`,
-                  )
-                }
-              >
-                Mark as paid
-              </button>
+            <p>Already set aside in today's amount.</p>
+          </div>
+          <button
+            className="btn small"
+            onClick={() =>
+              ctx.addTxn(
+                { date: f.today, kind: 'expense', amount: overdue.amount, category: 'bills', note: overdue.name },
+                `${overdue.name} marked as paid`,
+              )
+            }
+          >
+            Paid
+          </button>
+        </section>
+      ) : (
+        f.nudge && (
+          <section className="card action">
+            <span className="action-icon good">
+              <Icon name="piggy" />
+            </span>
+            <div className="body">
+              <h2>{t('goodDay')}</h2>
+              <p>
+                You earned {rand(f.nudge.earned)}, more than your usual {rand(f.nudge.typical)}.
+              </p>
             </div>
-          </div>
-        </section>
-      ))}
-
-      {f.nudge && (
-        <section className="card alert good">
-          <span className="icon" aria-hidden="true">🌟</span>
-          <div className="body">
-            <h2>{t('goodDay')}</h2>
-            <p>
-              You earned {rand(f.nudge.earned)} today. On this weekday you usually earn about {rand(f.nudge.typical)}.
-              Moving {rand(f.nudge.amount)} to your buffer now protects you on slow days.
-            </p>
-            <div className="actions">
-              <button
-                className="btn"
-                onClick={() =>
-                  ctx.addTxn(
-                    { date: f.today, kind: 'save', amount: f.nudge!.amount, category: 'buffer', note: 'Good-day save' },
-                    `${rand(f.nudge!.amount)} moved to your buffer`,
-                  )
-                }
-              >
-                {t('moveToBuffer')}: {rand(f.nudge.amount)}
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {f.pinch && (
-        <section className="card alert warn">
-          <span className="icon" aria-hidden="true">⚠️</span>
-          <div className="body">
-            <h2>
-              {t('tightSpot')}: {shortDate(f.pinch.date)}
-            </h2>
-            <p>
-              {f.pinch.bills.length
-                ? `${f.pinch.bills.map((b) => `${b.name} (${rand(b.amount)})`).join(' and ')} is due. `
-                : 'Your slower earning days catch up with you around then. '}
-              That's why today's amount is {rand(f.safeToday)}. Stick to it and you can cover everything until then,
-              even if work is slow.
-            </p>
-          </div>
-        </section>
-      )}
-
-      {f.leanWeek && (
-        <section className="card alert warn">
-          <span className="icon" aria-hidden="true">🌧️</span>
-          <div className="body">
-            <h2>{t('leanWeek')}</h2>
-            <p>
-              The next 7 days: about {rand(f.leanWeek.income)} expected in
-              {f.leanWeek.bills > 0 ? `, ${rand(f.leanWeek.bills)} in bills out` : ''}. A normal week brings in about{' '}
-              {rand(f.leanWeek.typical)}.
-            </p>
-          </div>
-        </section>
+            <button
+              className="btn small"
+              onClick={() =>
+                ctx.addTxn(
+                  { date: f.today, kind: 'save', amount: f.nudge!.amount, category: 'buffer', note: 'Good-day save' },
+                  `${rand(f.nudge!.amount)} moved to your buffer`,
+                )
+              }
+            >
+              Save {rand(f.nudge.amount)}
+            </button>
+          </section>
+        )
       )}
 
       <section className="card chart">
-        <h2>{t('next14')}</h2>
-        <div className="legend">
-          <span>
-            <i style={{ background: 'var(--line-safe)' }} />
-            Spending {rand(f.safeToday)}/day
-          </span>
-          <span>
-            <i style={{ background: 'var(--line-usual)' }} />
-            Spending as usual
-          </span>
+        <div className="card-head">
+          <h2>{t('next14')}</h2>
+          <div className="legend">
+            <span>
+              <i style={{ background: 'var(--line-safe)' }} />
+              {rand(f.safeToday)}/day
+            </span>
+            <span>
+              <i className="dashed" style={{ borderColor: 'var(--line-usual)' }} />
+              As usual
+            </span>
+          </div>
         </div>
         <ForecastChart f={f} />
         {usualLow && usualLow.expectedBalance < 0 && (
-          <p style={{ marginTop: 8 }}>
-            If you spend the way you usually do, you'd run <b>{rand(-usualLow.expectedBalance)} short</b> by{' '}
-            {shortDate(usualLow.date)}.
+          <p className="chart-note">
+            Spending as usual, you'd be <b>{rand(-usualLow.expectedBalance)} short</b> by {shortDate(usualLow.date)}.
           </p>
         )}
       </section>
 
-      <div className="stats">
-        <div className="card">
-          <div className="stat-label">{t('balance')}</div>
-          <div className="stat-value">{rand(f.balance)}</div>
-        </div>
-        <div className="card">
-          <div className="stat-label">{t('buffer')}</div>
-          <div className="stat-value">{rand(f.buffer)}</div>
-          {p.bufferGoal > 0 && (
-            <div className="progress" role="progressbar" aria-valuenow={Math.round(goalPct)} aria-valuemin={0} aria-valuemax={100}>
-              <div style={{ width: `${goalPct}%` }} />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="stack" style={{ gridTemplateColumns: '1fr 1fr', marginBottom: 12 }}>
-        <button className="btn" onClick={() => ctx.go('add')}>
-          + {t('moneyIn')} / {t('moneyOut')}
-        </button>
-        <button className="btn secondary" onClick={() => ctx.go('insights')}>
-          See insights
-        </button>
-      </div>
-
-      <h3 className="section-title">Recent</h3>
       <section className="card">
-        <TxnList ctx={ctx} txns={txns} limit={6} />
+        <div className="card-head">
+          <h2>Recent</h2>
+        </div>
+        <TxnList ctx={ctx} txns={txns} limit={4} />
       </section>
     </>
   )

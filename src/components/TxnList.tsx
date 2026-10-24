@@ -1,5 +1,6 @@
 import type { Ctx } from '../App'
 import type { Txn } from '../lib/types'
+import Icon from './Icon'
 import { rand } from '../lib/money'
 import { shortDate } from '../lib/dates'
 
@@ -56,7 +57,7 @@ export default function TxnList({ ctx, txns, limit }: { ctx: Ctx; txns: Txn[]; l
                 ctx.toast('Entry deleted')
               }}
             >
-              ✕
+              <Icon name="x" size={16} />
             </button>
           </li>
         )

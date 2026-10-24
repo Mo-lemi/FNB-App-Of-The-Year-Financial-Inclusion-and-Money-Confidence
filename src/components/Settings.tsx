@@ -121,7 +121,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
       <h3 className="section-title">Your data</h3>
       <section className="card">
         <p style={{ marginBottom: 12 }}>
-          🔒 Everything stays on this phone. Imali has no server and no account, and never asks for your banking PIN or password.
+          Everything stays on this phone. Imali has no server and no account, and never asks for your banking PIN or password.
         </p>
         <div className="stack">
           <button className="btn secondary" onClick={exportData}>

@@ -4,6 +4,7 @@ import type { Forecast } from '../lib/forecast'
 import { buildInsights } from '../lib/insights'
 import { DOW_SHORT } from '../lib/dates'
 import { rand, roundTo } from '../lib/money'
+import Icon from './Icon'
 
 // Show the week starting Monday
 const ORDER = [1, 2, 3, 4, 5, 6, 0]
@@ -15,13 +16,26 @@ export default function Insights({ ctx, f }: { ctx: Ctx; f: Forecast }) {
   return (
     <>
       <header className="topbar">
-        <h1>Insights</h1>
-        <span className="sub">{f.historyDays} days of history</span>
+        <div>
+          <h1>Insights</h1>
+          <div className="sub">From {f.historyDays} days of your money</div>
+        </div>
       </header>
 
       <section className="card">
-        <h2>Your earning rhythm</h2>
-        <p>What a typical day brings in (green), and a slow one (yellow). Imali plans with the slow days.</p>
+        <div className="card-head">
+          <h2>Your earning week</h2>
+          <div className="legend">
+            <span>
+              <i style={{ background: 'var(--brand)' }} />
+              Typical
+            </span>
+            <span>
+              <i style={{ background: 'var(--accent)' }} />
+              Slow day
+            </span>
+          </div>
+        </div>
         <div
           className="dow-bars"
           role="img"
@@ -43,25 +57,33 @@ export default function Insights({ ctx, f }: { ctx: Ctx; f: Forecast }) {
         </div>
       </section>
 
-      {insights.map((i) => (
-        <section key={i.id} className={`card insight ${i.tone}`}>
-          <span className="icon" aria-hidden="true">
-            {i.icon}
-          </span>
-          <div>
-            <h2>{i.title}</h2>
-            <p>{i.body}</p>
-          </div>
-        </section>
-      ))}
-
       <section className="card">
-        <h2>How Imali works out your number</h2>
-        <p>1. It learns what you earn on each day of the week, and how much a slow day brings in.</p>
-        <p>2. It notices regular money such as grants, and whether your earnings are rising or falling.</p>
-        <p>3. It lays out your next 14 days: slow-day income in, bills out.</p>
-        <p>4. It finds the most you can spend each day without running out before your bills, even if work is slow.</p>
+        <ul className="insight-list">
+          {insights.map((i) => (
+            <li key={i.id}>
+              <span className={`action-icon ${i.tone}`}>
+                <Icon name={i.icon} />
+              </span>
+              <div>
+                <h3>{i.title}</h3>
+                <p>{i.body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
+
+      <details className="card how">
+        <summary>
+          How Imali works out your number <Icon name="chevron" size={18} />
+        </summary>
+        <ol>
+          <li>It learns what you earn on each day of the week, and how much a slow day brings in.</li>
+          <li>It notices regular money such as grants, and whether your earnings are rising or falling.</li>
+          <li>It lays out your next 14 days: slow-day income in, bills out.</li>
+          <li>It finds the most you can spend each day without running out before your bills, even if work is slow.</li>
+        </ol>
+      </details>
     </>
   )
 }

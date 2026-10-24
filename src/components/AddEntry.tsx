@@ -5,16 +5,12 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../lib/types'
 import { parseSms, type ParsedSms } from '../lib/sms'
 import { rand } from '../lib/money'
 import { categoryLabel } from './TxnList'
+import Icon from './Icon'
 
 interface Props {
   ctx: Ctx
   t: (k: TKey) => string
   today: string
-}
-
-const EMOJI: Record<string, string> = {
-  work: '🛵', side: '🧽', grant: '🏛️', family: '👪', food: '🍞', transport: '🚕',
-  airtime: '📱', household: '💡', bills: '🧾', other: '•',
 }
 
 export default function AddEntry({ ctx, t, today }: Props) {
@@ -66,7 +62,7 @@ export default function AddEntry({ ctx, t, today }: Props) {
       <header className="topbar">
         <h1>{t('navAdd')}</h1>
         <button className="btn ghost" onClick={() => setShowSms((s) => !s)} aria-expanded={showSms}>
-          {showSms ? 'Hide SMS reader' : '📩 Paste an SMS'}
+          {showSms ? 'Hide SMS reader' : <><Icon name="message" size={18} /> Paste an SMS</>}
         </button>
       </header>
 
@@ -89,7 +85,7 @@ export default function AddEntry({ ctx, t, today }: Props) {
           </button>
           {parsed && parsed.scamWarnings.length > 0 && (
             <div className="warnings" role="alert">
-              <strong>⚠️ This looks like a scam</strong>
+              <strong>This looks like a scam</strong>
               <ul>
                 {parsed.scamWarnings.map((w) => (
                   <li key={w}>{w}</li>
@@ -102,17 +98,17 @@ export default function AddEntry({ ctx, t, today }: Props) {
             <p style={{ marginTop: 10 }}>We couldn't find an amount in that SMS. Please fill it in below.</p>
           )}
           {parsed && parsed.amount && parsed.scamWarnings.length === 0 && (
-            <p style={{ marginTop: 10, color: 'var(--good)' }}>✓ Filled in below. Check it, then save.</p>
+            <p style={{ marginTop: 10, color: 'var(--good)' }}>Filled in below. Check it, then save.</p>
           )}
         </section>
       )}
 
       <div className="segmented" role="tablist">
         <button role="tab" aria-selected={kind === 'income'} className={kind === 'income' ? 'on' : ''} onClick={() => switchKind('income')}>
-          ↓ {t('moneyIn')}
+          {t('moneyIn')}
         </button>
         <button role="tab" aria-selected={kind === 'expense'} className={kind === 'expense' ? 'on' : ''} onClick={() => switchKind('expense')}>
-          ↑ {t('moneyOut')}
+          {t('moneyOut')}
         </button>
       </div>
 
@@ -133,7 +129,7 @@ export default function AddEntry({ ctx, t, today }: Props) {
         <div className="chips">
           {cats.map((c) => (
             <button key={c} className={`chip ${category === c ? 'on' : ''}`} onClick={() => setCategory(c)} aria-pressed={category === c}>
-              {EMOJI[c]} {categoryLabel(c)}
+              {categoryLabel(c)}
             </button>
           ))}
         </div>

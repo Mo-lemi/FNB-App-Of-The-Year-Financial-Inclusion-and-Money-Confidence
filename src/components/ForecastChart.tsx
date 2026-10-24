@@ -35,7 +35,7 @@ export default function ForecastChart({ f }: { f: Forecast }) {
         onPointerMove={(e) => e.buttons && pick(e.clientX, e.currentTarget.getBoundingClientRect())}
       >
         <line x1={PAD.l} x2={W - PAD.r} y1={y(0)} y2={y(0)} stroke="var(--muted)" strokeDasharray="3 4" strokeWidth="1" />
-        <text x={W - PAD.r} y={y(0) - 4} textAnchor="end" fontSize="10" fill="var(--muted)">
+        <text x={PAD.l + 2} y={y(0) - 4} textAnchor="start" fontSize="10" fill="var(--muted)">
           R0
         </text>
         {y(0) < H - PAD.b && (
@@ -46,7 +46,7 @@ export default function ForecastChart({ f }: { f: Forecast }) {
             <g key={d.date}>
               <line x1={x(i + 1)} x2={x(i + 1)} y1={PAD.t} y2={H - PAD.b} stroke="var(--tight)" strokeWidth="1" opacity="0.5" />
               <text x={x(i + 1)} y={PAD.t - 2} textAnchor="middle" fontSize="9" fill="var(--tight)">
-                {d.bills[0].name.slice(0, 10)}
+                {d.bills[0].name.split(' ')[0]}
               </text>
             </g>
           ) : null,
@@ -55,7 +55,14 @@ export default function ForecastChart({ f }: { f: Forecast }) {
         <path d={path('safe')} fill="none" stroke="var(--line-safe)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
         {pts.map((p, i) =>
           i % 2 === 0 ? (
-            <text key={p.date} x={x(i)} y={H - 8} textAnchor="middle" fontSize="9" fill="var(--muted)">
+            <text
+              key={p.date}
+              x={x(i)}
+              y={H - 8}
+              textAnchor={i === 0 ? 'start' : i === pts.length - 1 ? 'end' : 'middle'}
+              fontSize="9"
+              fill="var(--muted)"
+            >
               {i === 0 ? 'Today' : `${DOW_SHORT[dow(p.date)].slice(0, 2)} ${dom(p.date)}`}
             </text>
           ) : null,
@@ -75,7 +82,7 @@ export default function ForecastChart({ f }: { f: Forecast }) {
           <b>{rand(day.safeBalance)}</b> on the safe plan, <b>{rand(day.expectedBalance)}</b> spending as usual.
         </div>
       ) : (
-        <div className="day-detail">Tap the chart to see any day.</div>
+        <p className="chart-hint">Tap a day for details</p>
       )}
     </>
   )

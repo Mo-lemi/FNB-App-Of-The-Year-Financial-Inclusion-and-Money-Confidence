@@ -3,10 +3,11 @@ import type { Forecast } from './forecast'
 import { mean } from './forecast'
 import { addDays, DOW_LONG } from './dates'
 import { rand, roundTo } from './money'
+import type { IconName } from '../components/Icon'
 
 export interface Insight {
   id: string
-  icon: string
+  icon: IconName
   title: string
   body: string
   tone: 'info' | 'good' | 'warn'
@@ -29,7 +30,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
   if (f.confidence === 'learning') {
     out.push({
       id: 'learning',
-      icon: '🌱',
+      icon: 'leaf',
       title: 'Still learning your rhythm',
       body: `Log your money in and out for ${14 - f.historyDays} more days and the forecast will be based on your real patterns instead of your estimate.`,
       tone: 'info',
@@ -42,7 +43,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
     const worst = ranked[ranked.length - 1]
     out.push({
       id: 'best-days',
-      icon: '📅',
+      icon: 'calendar',
       title: `${DOW_LONG[ranked[0].d]}s and ${DOW_LONG[ranked[1].d]}s are your best days`,
       body: `You usually earn about ${rand(roundTo(ranked[0].v, 10))} on a ${DOW_LONG[ranked[0].d]}, but only ${rand(roundTo(worst.v, 10))} on a ${DOW_LONG[worst.d]}. Plan big purchases after your strong days.`,
       tone: 'info',
@@ -55,7 +56,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
     const down = f.trend < 1
     out.push({
       id: 'trend',
-      icon: down ? '📉' : '📈',
+      icon: down ? 'trendDown' : 'trendUp',
       title: down ? `Earnings are down ${pct}% lately` : `Earnings are up ${pct}% lately`,
       body: down
         ? 'Your last 4 weeks brought in less than the weeks before. Your safe-to-spend amount has already been lowered to match.'
@@ -77,7 +78,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
     const hi = Math.max(...weeks)
     out.push({
       id: 'swing',
-      icon: '〰️',
+      icon: 'wave',
       title: 'Your income swings week to week',
       body: `Over the last ${weeks.length} weeks you earned between ${rand(roundTo(lo, 10))} and ${rand(roundTo(hi, 10))} a week. That's why Imali plans with your slower weeks, not your best ones.`,
       tone: 'info',
@@ -107,7 +108,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
     if (after.length >= 4 && ratio >= 1.2) {
       out.push({
         id: 'spike',
-        icon: '💸',
+        icon: 'alert',
         title: `You spend ${Math.round((ratio - 1) * 100)}% more after a big day`,
         body: 'The day after you earn well, spending jumps. Moving a little to your buffer on good days keeps that money safe.',
         tone: 'warn',
@@ -127,7 +128,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
   if (top && total > 0) {
     out.push({
       id: 'top-cat',
-      icon: '🧾',
+      icon: 'receipt',
       title: `${CATEGORY_LABEL[top[0]] ?? top[0]} is your biggest cost`,
       body: `${rand(roundTo(top[1], 10))} in the last 30 days, ${Math.round((top[1] / total) * 100)}% of your everyday spending (not counting bills).`,
       tone: 'info',
@@ -137,7 +138,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
   for (const s of f.scheduled) {
     out.push({
       id: `sched-${s.category}`,
-      icon: '🔁',
+      icon: 'repeat',
       title: `${s.label} arrives around the ${ordinal(s.dayOfMonth)}`,
       body: `We spotted about ${rand(roundTo(s.amount, 10))} coming in each month and already count on it in your forecast.`,
       tone: 'good',
@@ -149,7 +150,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
     const pct = Math.min(100, Math.round((f.buffer / goal) * 100))
     out.push({
       id: 'buffer',
-      icon: '🛟',
+      icon: 'piggy',
       title: `Buffer: ${pct}% of your ${rand(goal)} goal`,
       body:
         pct >= 100

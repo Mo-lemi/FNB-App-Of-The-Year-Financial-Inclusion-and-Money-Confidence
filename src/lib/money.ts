@@ -5,7 +5,8 @@ export function rand(n: number, opts: { cents?: boolean } = {}): string {
     minimumFractionDigits: opts.cents ? 2 : 0,
     maximumFractionDigits: opts.cents ? 2 : 0,
   })
-  return `${sign}R${s.replace(/\u00a0/g, ' ')}`
+  // Non-breaking space between thousands so an amount never wraps across lines
+  return `${sign}R${s.replace(/[\s\u202f]/g, '\u00a0')}`
 }
 
 export const roundTo = (n: number, step: number) => Math.round(n / step) * step

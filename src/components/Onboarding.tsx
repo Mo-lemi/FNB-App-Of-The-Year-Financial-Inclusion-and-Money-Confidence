@@ -4,6 +4,7 @@ import { LANGS } from '../lib/i18n'
 import { buildDemo } from '../lib/demo'
 import { todayISO } from '../lib/dates'
 import BillsEditor from './BillsEditor'
+import Icon from './Icon'
 
 export default function Onboarding({ onDone }: { onDone: (d: AppData) => void }) {
   const [step, setStep] = useState<'welcome' | 'about' | 'bills'>('welcome')
@@ -23,25 +24,25 @@ export default function Onboarding({ onDone }: { onDone: (d: AppData) => void })
         <p className="tagline">Know what's safe to spend today, even when your income changes every day.</p>
         <div className="features">
           <div>
-            <span aria-hidden="true">🎯</span>
+            <span className="feature-icon"><Icon name="target" /></span>
             <span>
               <b>One clear number.</b> How much you can spend today and still cover rent and bills.
             </span>
           </div>
           <div>
-            <span aria-hidden="true">🔮</span>
+            <span className="feature-icon"><Icon name="calendar" /></span>
             <span>
               <b>Sees slow weeks coming.</b> It learns your earning rhythm and warns you early.
             </span>
           </div>
           <div>
-            <span aria-hidden="true">🛡️</span>
+            <span className="feature-icon"><Icon name="shield" /></span>
             <span>
               <b>Spots scam SMSes.</b> Paste a message and Imali checks it before you act.
             </span>
           </div>
           <div>
-            <span aria-hidden="true">🔒</span>
+            <span className="feature-icon"><Icon name="lock" /></span>
             <span>
               <b>Private.</b> No sign-up, no bank login. Your data never leaves your phone.
             </span>
