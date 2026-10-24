@@ -279,8 +279,9 @@ export function forecast(data: AppData, today: string): Forecast {
     const amount = Math.min(
       Math.max(10, roundTo((earnedToday - typicalToday) * (status === 'good' ? 0.3 : 0.15), 10)),
       profile.bufferGoal - buffer,
+      floorTo(safeToday, 10), // never suggest more than is safe to spend today
     )
-    nudge = { amount, earned: earnedToday, typical: roundTo(typicalToday, 10) }
+    if (amount >= 10) nudge = { amount, earned: earnedToday, typical: roundTo(typicalToday, 10) }
   }
 
   return {
@@ -305,4 +306,29 @@ export function forecast(data: AppData, today: string): Forecast {
     historyDays,
     confidence: historyDays < 14 ? 'learning' : historyDays < 42 ? 'ok' : 'strong',
   }
+}
+
+function afterSaving(data: AppData, today: string, amount: number): Forecast {
+  const save: Txn = { id: 'preview', date: today, kind: 'save', amount, category: 'buffer', note: '' }
+  return forecast({ ...data, txns: [...data.txns, save] }, today)
+}
+
+/** What today's safe amount would become after moving `amount` into the buffer. */
+export const safeAfterSaving = (data: AppData, today: string, amount: number) => afterSaving(data, today, amount).safeToday
+
+/**
+ * The most that can go into the buffer today (in R10 steps) while the safe amount still
+ * covers everyday essentials, i.e. without dropping into "essentials only" mode.
+ */
+export function maxSave(data: AppData, today: string): number {
+  const ok = (x: number) => afterSaving(data, today, x).status !== 'survival'
+  if (!ok(0)) return 0
+  let lo = 0
+  let hi = Math.max(0, Math.floor(forecast(data, today).available / 10))
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    if (ok(mid * 10)) lo = mid
+    else hi = mid - 1
+  }
+  return lo * 10
 }

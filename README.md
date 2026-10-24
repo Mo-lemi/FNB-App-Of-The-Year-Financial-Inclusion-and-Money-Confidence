@@ -18,7 +18,7 @@ Imali answers one question every morning: **"How much can I spend today without 
 
 - **Safe to spend today.** A single rand amount, with a status (*on track*, *go carefully* or *essentials only*) and one line explaining why. For example: *"Keeping enough back for School transport (R450) on Thu 5 Nov."*
 - **14-day forecast.** A chart of where your balance is heading on the safe plan compared with spending as usual. Tap a day for details.
-- **Good-day nudge.** On a better-than-usual day, Imali suggests putting a small amount into a buffer. It asks before saving, and only suggests it once a day.
+- **Good-day nudge.** On a better-than-usual day, Imali suggests putting a small amount into a buffer, once a day. You can change the amount: the card shows what today's safe amount becomes, and won't let you save so much that food and transport are no longer covered.
 - **Bills.** Monthly bills with due dates. Overdue bills show up first, and you mark them paid with one confirmed tap.
 - **SMS reader with scam check.** Paste a bank or payment SMS and Imali fills in the amount and type. It also warns about scam signs: links, requests for a PIN or OTP, prize claims, pressure to act fast, and "pay a fee to receive money".
 - **Insights.** Which weekdays you usually earn most, whether income is trending up or down, your biggest cost, and whether you tend to overspend after a big day.
@@ -43,7 +43,7 @@ The engine is in [`src/lib/forecast.ts`](src/lib/forecast.ts), and its tests are
 - **Never asks for banking details.** Imali does not connect to a bank and never asks for a banking PIN, password or OTP.
 - **PIN lock.** Only a salted SHA-256 hash of the PIN is stored. After five wrong tries you must wait, and the wait doubles with each further miss. The PIN is a privacy screen for shared phones, **not encryption**. A forgotten PIN can't be reset, because there's no account. The only option is to delete the data and start again.
 - **Demo links can't wipe real data.** Opening a `?demo` link on a phone that already has data runs the demo for that visit only. The saved data and PIN stay untouched.
-- **Accidental taps.** Saving to the buffer and marking a bill as paid both ask for confirmation first.
+- **Accidental taps.** Saving to the buffer and marking a bill as paid both ask for confirmation first, and the confirm button sits in a different spot so a double tap can't trigger it.
 
 ## Run it locally
 

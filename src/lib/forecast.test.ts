@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { detectScheduled, forecast, HORIZON, percentile } from './forecast'
+import { detectScheduled, forecast, HORIZON, percentile, maxSave, safeAfterSaving } from './forecast'
 import { buildDemo } from './demo'
 import { buildInsights } from './insights'
 import { addDays } from './dates'
@@ -61,6 +61,26 @@ describe('forecast', () => {
   it('suggests saving on a better-than-usual day', () => {
     const f = forecast(buildDemo(TODAY), TODAY)
     expect(f.nudge?.amount).toBeGreaterThan(0)
+  })
+
+  it('never suggests saving more than is safe today, and saving lowers the safe amount', () => {
+    const data = buildDemo(TODAY)
+    const f = forecast(data, TODAY)
+    expect(f.nudge!.amount).toBeLessThanOrEqual(f.safeToday)
+    expect(safeAfterSaving(data, TODAY, f.nudge!.amount)).toBeLessThan(f.safeToday)
+  })
+
+  it('caps a custom save where essentials would no longer be covered', () => {
+    const data = buildDemo(TODAY)
+    const limit = maxSave(data, TODAY)
+    expect(limit).toBeGreaterThanOrEqual(forecast(data, TODAY).nudge!.amount)
+    const status = (x: number) => {
+      const d = buildDemo(TODAY)
+      d.txns.push({ id: 's', date: TODAY, kind: 'save', amount: x, category: 'buffer', note: '' })
+      return forecast(d, TODAY).status
+    }
+    expect(status(limit)).not.toBe('survival')
+    expect(status(limit + 10)).toBe('survival')
   })
 
   it('stops suggesting once something was saved today', () => {

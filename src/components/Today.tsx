@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Ctx } from '../App'
-import type { Forecast } from '../lib/forecast'
+import { maxSave, safeAfterSaving, type Forecast } from '../lib/forecast'
 import type { TKey } from '../lib/i18n'
 import { rand } from '../lib/money'
 import { parseISO, shortDate } from '../lib/dates'
@@ -103,23 +103,7 @@ export default function Today({ ctx, f, t }: Props) {
         />
       ) : (
         f.nudge && (
-          <ActionCard
-            key="nudge"
-            icon="piggy"
-            tone="good"
-            title={t('goodDay')}
-            body={`You earned ${rand(f.nudge.earned)}, more than your usual ${rand(f.nudge.typical)}.`}
-            button={`Save ${rand(f.nudge.amount)}`}
-            question={`Put ${rand(f.nudge.amount)} in your buffer?`}
-            detail="It comes off what is safe to spend. You can take it out in Settings."
-            yes={`Yes, save ${rand(f.nudge.amount)}`}
-            onConfirm={() =>
-              ctx.addTxn(
-                { date: f.today, kind: 'save', amount: f.nudge!.amount, category: 'buffer', note: 'Good-day save' },
-                `${rand(f.nudge!.amount)} moved to your buffer`,
-              )
-            }
-          />
+          <SaveCard key="nudge" ctx={ctx} f={f} title={t('goodDay')} />
         )
       )}
 
@@ -214,6 +198,90 @@ function ActionCard({ icon, tone, title, body, button, question, detail, yes, on
       >
         {button}
       </button>
+    </section>
+  )
+}
+
+/**
+ * The good-day nudge. The suggested amount is filled in, but it can be changed: the card
+ * shows what the safe amount becomes and refuses anything that would eat into money
+ * kept for bills or slower days.
+ */
+function SaveCard({ ctx, f, title }: { ctx: Ctx; f: Forecast; title: string }) {
+  const nudge = f.nudge!
+  const [asking, setAsking] = useState(false)
+  const [askedAt, setAskedAt] = useState(0)
+  const limit = useMemo(() => maxSave(ctx.data, f.today), [ctx.data, f.today])
+  const [value, setValue] = useState(String(Math.min(nudge.amount, limit)))
+  const amount = Number(value)
+  const tooMuch = amount > limit
+  const after = amount > 0 ? safeAfterSaving(ctx.data, f.today, amount) : null
+  const until = f.pinch?.bills.length ? `until ${f.pinch.bills[0].name} on ${shortDate(f.pinch.date)}` : 'for the next two weeks'
+
+  if (!asking)
+    return (
+      <section className="card action">
+        <span className="action-icon good">
+          <Icon name="piggy" />
+        </span>
+        <div className="body">
+          <h2>{title}</h2>
+          <p>
+            You earned {rand(nudge.earned)}, more than your usual {rand(nudge.typical)}.
+          </p>
+        </div>
+        <button
+          className="btn small"
+          onClick={() => {
+            setAsking(true)
+            setAskedAt(Date.now())
+          }}
+        >
+          Save {rand(nudge.amount)}
+        </button>
+      </section>
+    )
+
+  return (
+    <section className="card action asking" role="alertdialog" aria-label="Put money in your buffer">
+      <h2>How much do you want to put in your buffer?</h2>
+      <label className="save-amount">
+        <span>R</span>
+        <input
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          aria-label="Amount to save"
+          aria-invalid={tooMuch}
+          aria-describedby="save-effect"
+        />
+      </label>
+      <p id="save-effect" className={tooMuch ? 'save-warn' : ''} aria-live="polite">
+        {tooMuch
+          ? `Safe to spend would drop to ${rand(Math.max(0, after ?? 0))} a day ${until}, too little for food and transport. You can save up to ${rand(limit)} today.`
+          : after !== null
+            ? `Safe to spend today goes from ${rand(f.safeToday)} to ${rand(after)}. You can take it out in Settings.`
+            : 'Enter an amount.'}
+      </p>
+      <div className="action-choices">
+        <button className="btn small secondary" onClick={() => setAsking(false)}>
+          Not now
+        </button>
+        <button
+          className="btn small"
+          disabled={!(amount > 0) || tooMuch}
+          // Ignore a tap that lands straight after the first one.
+          onClick={() =>
+            Date.now() - askedAt > 400 &&
+            ctx.addTxn(
+              { date: f.today, kind: 'save', amount, category: 'buffer', note: amount === nudge.amount ? 'Good-day save' : 'Saved to buffer' },
+              `${rand(amount)} moved to your buffer`,
+            )
+          }
+        >
+          {amount > 0 && !tooMuch ? `Save ${rand(amount)}` : 'Save'}
+        </button>
+      </div>
     </section>
   )
 }
