@@ -271,9 +271,11 @@ export function forecast(data: AppData, today: string): Forecast {
       : null
 
   // A better-than-usual earning day is the easiest moment to put something away.
+  // Asked once a day: after any save today, the suggestion goes away.
   const typicalToday = expectedByDow[dow(today)]
+  const savedToday = todays.some((t) => t.kind === 'save')
   let nudge: Forecast['nudge'] = null
-  if (buffer < profile.bufferGoal && typicalToday > 0 && earnedToday > typicalToday * 1.25 && status !== 'survival') {
+  if (!savedToday && buffer < profile.bufferGoal && typicalToday > 0 && earnedToday > typicalToday * 1.25 && status !== 'survival') {
     const amount = Math.min(
       Math.max(10, roundTo((earnedToday - typicalToday) * (status === 'good' ? 0.3 : 0.15), 10)),
       profile.bufferGoal - buffer,

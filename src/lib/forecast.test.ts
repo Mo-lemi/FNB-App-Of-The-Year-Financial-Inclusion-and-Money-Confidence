@@ -63,6 +63,12 @@ describe('forecast', () => {
     expect(f.nudge?.amount).toBeGreaterThan(0)
   })
 
+  it('stops suggesting once something was saved today', () => {
+    const data = buildDemo(TODAY)
+    data.txns.push({ id: 'x', date: TODAY, kind: 'save', amount: 60, category: 'buffer', note: 'Good-day save' })
+    expect(forecast(data, TODAY).nudge).toBeNull()
+  })
+
   it('detects the falling trend in the demo', () => {
     const f = forecast(buildDemo(TODAY), TODAY)
     expect(f.trend).toBeLessThan(1)

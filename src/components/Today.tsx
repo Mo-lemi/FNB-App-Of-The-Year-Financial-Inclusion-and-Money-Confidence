@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Ctx } from '../App'
 import type { Forecast } from '../lib/forecast'
 import type { TKey } from '../lib/i18n'
@@ -5,7 +6,7 @@ import { rand } from '../lib/money'
 import { parseISO, shortDate } from '../lib/dates'
 import ForecastChart from './ForecastChart'
 import TxnList from './TxnList'
-import Icon from './Icon'
+import Icon, { type IconName } from './Icon'
 
 interface Props {
   ctx: Ctx
@@ -84,52 +85,41 @@ export default function Today({ ctx, f, t }: Props) {
       </section>
 
       {overdue ? (
-        <section className="card action">
-          <span className="action-icon bad">
-            <Icon name="clock" />
-          </span>
-          <div className="body">
-            <h2>
-              {overdue.name} ({rand(overdue.amount)}) is due
-            </h2>
-            <p>Already set aside in today's amount.</p>
-          </div>
-          <button
-            className="btn small"
-            onClick={() =>
-              ctx.addTxn(
-                { date: f.today, kind: 'expense', amount: overdue.amount, category: 'bills', note: overdue.name },
-                `${overdue.name} marked as paid`,
-              )
-            }
-          >
-            Paid
-          </button>
-        </section>
+        <ActionCard
+          key={`bill-${overdue.id}`}
+          icon="clock"
+          tone="bad"
+          title={`${overdue.name} (${rand(overdue.amount)}) is due`}
+          body="Already set aside in today's amount."
+          button="Paid"
+          question={`Mark ${overdue.name} (${rand(overdue.amount)}) as paid?`}
+          yes="Yes, it's paid"
+          onConfirm={() =>
+            ctx.addTxn(
+              { date: f.today, kind: 'expense', amount: overdue.amount, category: 'bills', note: overdue.name },
+              `${overdue.name} marked as paid`,
+            )
+          }
+        />
       ) : (
         f.nudge && (
-          <section className="card action">
-            <span className="action-icon good">
-              <Icon name="piggy" />
-            </span>
-            <div className="body">
-              <h2>{t('goodDay')}</h2>
-              <p>
-                You earned {rand(f.nudge.earned)}, more than your usual {rand(f.nudge.typical)}.
-              </p>
-            </div>
-            <button
-              className="btn small"
-              onClick={() =>
-                ctx.addTxn(
-                  { date: f.today, kind: 'save', amount: f.nudge!.amount, category: 'buffer', note: 'Good-day save' },
-                  `${rand(f.nudge!.amount)} moved to your buffer`,
-                )
-              }
-            >
-              Save {rand(f.nudge.amount)}
-            </button>
-          </section>
+          <ActionCard
+            key="nudge"
+            icon="piggy"
+            tone="good"
+            title={t('goodDay')}
+            body={`You earned ${rand(f.nudge.earned)}, more than your usual ${rand(f.nudge.typical)}.`}
+            button={`Save ${rand(f.nudge.amount)}`}
+            question={`Put ${rand(f.nudge.amount)} in your buffer?`}
+            detail="It comes off what is safe to spend. You can take it out in Settings."
+            yes={`Yes, save ${rand(f.nudge.amount)}`}
+            onConfirm={() =>
+              ctx.addTxn(
+                { date: f.today, kind: 'save', amount: f.nudge!.amount, category: 'buffer', note: 'Good-day save' },
+                `${rand(f.nudge!.amount)} moved to your buffer`,
+              )
+            }
+          />
         )
       )}
 
@@ -162,5 +152,68 @@ export default function Today({ ctx, f, t }: Props) {
         <TxnList ctx={ctx} txns={txns} limit={4} />
       </section>
     </>
+  )
+}
+
+interface ActionProps {
+  icon: IconName
+  tone: 'good' | 'bad'
+  title: string
+  body: string
+  button: string
+  question: string
+  detail?: string
+  yes: string
+  onConfirm: () => void
+}
+
+/**
+ * A suggestion with a single button that asks before doing anything. The "Yes" button
+ * appears in a different place from the first one, so a double tap or a phone pressing
+ * itself in a pocket cannot confirm by accident.
+ */
+function ActionCard({ icon, tone, title, body, button, question, detail, yes, onConfirm }: ActionProps) {
+  const [asking, setAsking] = useState(false)
+  const [askedAt, setAskedAt] = useState(0)
+
+  if (asking)
+    return (
+      <section className="card action asking" role="alertdialog" aria-label={question}>
+        <h2>{question}</h2>
+        {detail && <p>{detail}</p>}
+        <div className="action-choices">
+          <button className="btn small secondary" onClick={() => setAsking(false)}>
+            Not now
+          </button>
+          <button
+            className="btn small"
+            // Ignore a tap that lands straight after the first one.
+            onClick={() => Date.now() - askedAt > 400 && onConfirm()}
+          >
+            {yes}
+          </button>
+        </div>
+      </section>
+    )
+
+  return (
+    <section className="card action">
+      <span className={`action-icon ${tone}`}>
+        <Icon name={icon} />
+      </span>
+      <div className="body">
+        <h2>{title}</h2>
+        <p>{body}</p>
+      </div>
+      <button
+        className="btn small"
+        onClick={() => {
+          setAsking(true)
+          setAskedAt(Date.now())
+        }}
+      >
+        {button}
+      </button>
+    </section>
   )
 }
