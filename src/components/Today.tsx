@@ -45,11 +45,18 @@ export default function Today({ ctx, f, t }: Props) {
           </h1>
           <div className="sub">{todayLabel}</div>
         </div>
-        {p.isDemo && (
-          <button className="pill-btn" onClick={exitDemo}>
-            <Icon name="logout" size={16} /> Exit demo
-          </button>
-        )}
+        <div className="topbar-actions">
+          {ctx.lock && (
+            <button className="pill-btn" onClick={ctx.lock}>
+              <Icon name="lock" size={16} /> Lock
+            </button>
+          )}
+          {p.isDemo && (
+            <button className="pill-btn" onClick={exitDemo}>
+              <Icon name="logout" size={16} /> Exit demo
+            </button>
+          )}
+        </div>
       </header>
 
       <section className={`card hero ${f.status}`} aria-live="polite">

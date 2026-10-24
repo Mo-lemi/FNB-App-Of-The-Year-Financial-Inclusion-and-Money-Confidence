@@ -5,11 +5,15 @@ import type { Lang, Profile } from '../lib/types'
 import { LANGS } from '../lib/i18n'
 import { rand } from '../lib/money'
 import BillsEditor from './BillsEditor'
+import { PinSetup, type PinMode } from './Lock'
+import { hasPin } from '../lib/lock'
 
 export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; today: string }) {
   const p = ctx.data.profile!
   const [actual, setActual] = useState('')
   const [withdraw, setWithdraw] = useState('')
+  const [pinMode, setPinMode] = useState<PinMode | null>(null)
+  const [pinOn, setPinOn] = useState(hasPin)
   const setProfile = (patch: Partial<Profile>) => ctx.setData((d) => ({ ...d, profile: { ...d.profile!, ...patch } }))
   const digits = (s: string) => Number(s.replace(/\D/g, ''))
 
@@ -117,6 +121,45 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
           </button>
         </div>
       </section>
+
+      <h3 className="section-title">App lock</h3>
+      <section className="card">
+        {pinOn ? (
+          <>
+            <p style={{ marginBottom: 12 }}>
+              Imali asks for your PIN when you open it, or when you come back after a minute away.
+            </p>
+            <div className="row">
+              <button className="btn secondary" onClick={() => setPinMode('change')}>
+                Change PIN
+              </button>
+              <button className="btn secondary" onClick={() => setPinMode('off')}>
+                Turn off
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p style={{ marginBottom: 12 }}>
+              Sharing this phone? Add a 4-digit PIN so nobody else can open Imali. Use a new PIN, not your bank card PIN.
+            </p>
+            <button className="btn secondary block" onClick={() => setPinMode('set')}>
+              Set a PIN
+            </button>
+          </>
+        )}
+      </section>
+      {pinMode && (
+        <PinSetup
+          mode={pinMode}
+          onCancel={() => setPinMode(null)}
+          onDone={(message) => {
+            setPinMode(null)
+            setPinOn(hasPin())
+            ctx.toast(message)
+          }}
+        />
+      )}
 
       <h3 className="section-title">Your data</h3>
       <section className="card">

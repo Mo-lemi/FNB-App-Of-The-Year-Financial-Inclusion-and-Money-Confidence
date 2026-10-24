@@ -46,6 +46,7 @@ const PATHS: Record<string, ReactNode> = {
   logout: <path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
   chevron: <path d="M9 6l6 6-6 6" />,
+  backspace: <path d="M9 5h11v14H9l-6-7zM12 9l5 6M17 9l-5 6" />,
 }
 
 export type IconName = keyof typeof PATHS

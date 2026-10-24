@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { AppData } from './types'
 import { buildDemo } from './demo'
 import { todayISO } from './dates'
+import { clearPin } from './lock'
 
 const KEY = 'imali:v1'
 const EMPTY: AppData = { profile: null, txns: [], bills: [] }
@@ -17,8 +18,7 @@ const demoRequested = (() => {
   return true
 })()
 
-function load(): AppData {
-  if (demoRequested) return buildDemo(todayISO())
+function readStored(): AppData {
   try {
     const raw = localStorage.getItem(KEY)
     return raw ? { ...EMPTY, ...JSON.parse(raw) } : EMPTY
@@ -27,10 +27,22 @@ function load(): AppData {
   }
 }
 
+// If someone with their own data opens a demo link, the demo runs for this visit only
+// and is never saved, so their real data (and PIN) are left untouched.
+const stored = readStored()
+export const demoSessionOnly = demoRequested && !!stored.profile && !stored.profile.isDemo
+
+function load(): AppData {
+  if (!demoRequested) return stored
+  if (!demoSessionOnly) clearPin()
+  return buildDemo(todayISO())
+}
+
 /** All data lives on the device. Nothing is sent to a server. */
 export function useAppData() {
   const [data, setData] = useState<AppData>(load)
   useEffect(() => {
+    if (demoSessionOnly) return
     try {
       localStorage.setItem(KEY, JSON.stringify(data))
     } catch {

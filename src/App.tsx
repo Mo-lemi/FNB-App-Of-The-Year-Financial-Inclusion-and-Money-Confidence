@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useAppData } from './lib/store'
+import { demoSessionOnly, useAppData } from './lib/store'
 import { forecast } from './lib/forecast'
 import { todayISO } from './lib/dates'
 import { newId } from './lib/money'
@@ -11,6 +11,8 @@ import AddEntry from './components/AddEntry'
 import Insights from './components/Insights'
 import Settings from './components/Settings'
 import Icon, { type IconName } from './components/Icon'
+import { LockScreen } from './components/Lock'
+import { clearPin, hasPin } from './lib/lock'
 
 export type Tab = 'today' | 'add' | 'insights' | 'settings'
 
@@ -26,13 +28,39 @@ export interface Ctx {
   addTxn: (t: Omit<Txn, 'id'>, message?: string) => void
   toast: (message: string) => void
   go: (tab: Tab) => void
+  /** Present only when a PIN is set. */
+  lock?: () => void
 }
+
+// Leaving the app for longer than this locks it again.
+const RELOCK_MS = 60_000
 
 export default function App() {
   const [data, setDataRaw] = useAppData()
   const [tab, setTab] = useState<Tab>(initialTab)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [today, setToday] = useState(todayISO)
+  const [locked, setLocked] = useState(() => hasPin() && !demoSessionOnly)
+
+  useEffect(() => {
+    let hiddenAt = 0
+    const onVisibility = () => {
+      if (document.hidden) hiddenAt = Date.now()
+      else if (hasPin() && Date.now() - hiddenAt > RELOCK_MS) setLocked(true)
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+
+  // The PIN guards this data, so it goes when the data goes.
+  useEffect(() => {
+    if (!data.profile) {
+      // Leaving a visit-only demo brings back the real data saved on this phone.
+      if (demoSessionOnly) return window.location.reload()
+      clearPin()
+      setLocked(false)
+    }
+  }, [data.profile])
 
   // Roll over to a new day if the app is left open past midnight.
   useEffect(() => {
@@ -55,6 +83,14 @@ export default function App() {
   const f = useMemo(() => (data.profile ? forecast(data, today) : null), [data, today])
 
   if (!data.profile || !f) return <Onboarding onDone={(d) => setDataRaw(d)} />
+  if (locked)
+    return (
+      <LockScreen
+        name={data.profile.name}
+        onUnlock={() => setLocked(false)}
+        onForgot={() => setDataRaw(() => ({ profile: null, txns: [], bills: [] }))}
+      />
+    )
 
   const ctx: Ctx = {
     data,
@@ -69,6 +105,7 @@ export default function App() {
       window.history.replaceState(null, '', next === 'today' ? window.location.pathname : `#${next}`)
       window.scrollTo(0, 0)
     },
+    lock: hasPin() && !demoSessionOnly ? () => setLocked(true) : undefined,
   }
 
   const navItems: { id: Tab; ico: IconName; label: string }[] = [
