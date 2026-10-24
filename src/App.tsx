@@ -55,8 +55,11 @@ export default function App() {
   // The PIN guards this data, so it goes when the data goes.
   useEffect(() => {
     if (!data.profile) {
+      // Whoever starts next begins on Today, not on the tab the last person left from.
+      window.history.replaceState(null, '', window.location.pathname)
       // Leaving a visit-only demo brings back the real data saved on this phone.
       if (demoSessionOnly) return window.location.reload()
+      setTab('today')
       clearPin()
       setLocked(false)
     }
