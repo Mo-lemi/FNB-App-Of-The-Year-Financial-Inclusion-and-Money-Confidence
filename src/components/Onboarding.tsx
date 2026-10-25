@@ -20,7 +20,7 @@ export default function Onboarding({ onDone }: { onDone: (d: AppData) => void })
     return (
       <main className="app welcome">
         <img className="logo" src={`${import.meta.env.BASE_URL}icon.svg`} alt="" />
-        <h1>Imali</h1>
+        <h1>Madi</h1>
         <p className="tagline">Know what's safe to spend today, even when your income changes every day.</p>
         <div className="features">
           <div>
@@ -38,7 +38,7 @@ export default function Onboarding({ onDone }: { onDone: (d: AppData) => void })
           <div>
             <span className="feature-icon"><Icon name="shield" /></span>
             <span>
-              <b>Spots scam SMSes.</b> Paste a message and Imali checks it before you act.
+              <b>Spots scam SMSes.</b> Paste a message and Madi checks it before you act.
             </span>
           </div>
           <div>
@@ -92,7 +92,7 @@ export default function Onboarding({ onDone }: { onDone: (d: AppData) => void })
           <label className="field">
             <span>In a normal week, how much do you earn?</span>
             <input inputMode="numeric" value={weekly} onChange={(e) => setWeekly(digits(e.target.value))} placeholder="R" />
-            <div className="hint">Your best guess. Imali learns the real pattern as you log.</div>
+            <div className="hint">Your best guess. Madi learns the real pattern as you log.</div>
           </label>
           <label className="field">
             <span>Buffer goal: money to keep aside for slow weeks</span>
@@ -119,7 +119,7 @@ export default function Onboarding({ onDone }: { onDone: (d: AppData) => void })
       </header>
       <section className="card">
         <p style={{ marginBottom: 12 }}>
-          Add the money that must go out every month: rent, school fees, stokvel, funeral cover. Imali keeps this safe for you.
+          Add the money that must go out every month: rent, school fees, stokvel, funeral cover. Madi keeps this safe for you.
         </p>
         <BillsEditor bills={bills} onChange={setBills} />
       </section>

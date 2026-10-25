@@ -14,7 +14,7 @@ describe('app lock', () => {
   it('stores a hash, never the PIN itself', async () => {
     await setPin('4826')
     expect(hasPin()).toBe(true)
-    expect(store.get('imali:lock')).not.toContain('4826')
+    expect(store.get('madi:lock')).not.toContain('4826')
   })
 
   it('accepts the right PIN and rejects a wrong one', async () => {

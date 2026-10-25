@@ -4,8 +4,20 @@ import { buildDemo } from './demo'
 import { todayISO } from './dates'
 import { clearPin } from './lock'
 
-const KEY = 'imali:v1'
+const KEY = 'madi:v1'
 const EMPTY: AppData = { profile: null, txns: [], bills: [] }
+
+// The app used to be called Imali. Move anything saved under the old names so
+// existing users keep their data and PIN after the rename.
+for (const [from, to] of [['imali:v1', KEY], ['imali:lock', 'madi:lock']]) {
+  try {
+    const old = localStorage.getItem(from)
+    if (old !== null && localStorage.getItem(to) === null) localStorage.setItem(to, old)
+    localStorage.removeItem(from)
+  } catch {
+    // Storage blocked: nothing to move.
+  }
+}
 
 // A link ending in ?demo opens a fresh demo account (used for the judges' demo link).
 // Checked once at startup so the URL can be cleaned up straight away.

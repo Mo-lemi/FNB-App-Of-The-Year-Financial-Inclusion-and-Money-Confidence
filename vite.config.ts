@@ -13,8 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'Imali — safe to spend',
-        short_name: 'Imali',
+        name: 'Madi — safe to spend',
+        short_name: 'Madi',
         description: 'Know what is safe to spend today, even when your income is irregular.',
         theme_color: '#1d5c4a',
         background_color: '#f6f4ee',

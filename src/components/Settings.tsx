@@ -31,7 +31,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
     const blob = new Blob([JSON.stringify(ctx.data, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `imali-${today}.json`
+    a.download = `madi-${today}.json`
     a.click()
     URL.revokeObjectURL(a.href)
   }
@@ -82,7 +82,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
       <h3 className="section-title">Balance</h3>
       <section className="card">
         <p style={{ marginBottom: 10 }}>
-          Imali thinks your balance is <b>{rand(f.balance)}</b>. If your real balance is different, enter it here.
+          Madi thinks your balance is <b>{rand(f.balance)}</b>. If your real balance is different, enter it here.
         </p>
         <div className="row">
           <label className="field">
@@ -127,7 +127,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
         {pinOn ? (
           <>
             <p style={{ marginBottom: 12 }}>
-              Imali asks for your PIN when you open it, or when you come back after a minute away.
+              Madi asks for your PIN when you open it, or when you come back after a minute away.
             </p>
             <div className="row">
               <button className="btn secondary" onClick={() => setPinMode('change')}>
@@ -141,7 +141,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
         ) : (
           <>
             <p style={{ marginBottom: 12 }}>
-              Sharing this phone? Add a 4-digit PIN so nobody else can open Imali. Use a new PIN, not your bank card PIN.
+              Sharing this phone? Add a 4-digit PIN so nobody else can open Madi. Use a new PIN, not your bank card PIN.
             </p>
             <button className="btn secondary block" onClick={() => setPinMode('set')}>
               Set a PIN
@@ -164,7 +164,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
       <h3 className="section-title">Your data</h3>
       <section className="card">
         <p style={{ marginBottom: 12 }}>
-          Everything stays on this phone. Imali has no server and no account, and never asks for your banking PIN or password.
+          Everything stays on this phone. Madi has no server and no account, and never asks for your banking PIN or password.
         </p>
         <div className="stack">
           <button className="btn secondary" onClick={exportData}>
@@ -175,7 +175,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
           </button>
         </div>
       </section>
-      <p className="fine">Imali · built for the FNB App of the Year Hackathon 2026</p>
+      <p className="fine">Madi · built for the FNB App of the Year Hackathon 2026</p>
     </>
   )
 }

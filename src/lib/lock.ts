@@ -2,7 +2,7 @@
 // it is not encryption. Only a salted hash of the PIN is stored, so a PIN reused from
 // a bank card is never sitting on the phone in plain text.
 
-const KEY = 'imali:lock'
+const KEY = 'madi:lock'
 const MAX_TRIES = 5
 const BASE_WAIT_MS = 30_000
 

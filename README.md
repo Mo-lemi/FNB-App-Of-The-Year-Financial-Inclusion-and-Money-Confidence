@@ -1,6 +1,8 @@
-# Imali — safe to spend today
+# Madi — safe to spend today
 
 **One number for people whose income changes every day:** how much you can spend today and still cover what's coming.
+
+*Madi* means money in Setswana.
 
 Built for the **FNB App of the Year Hackathon 2026** (Financial Inclusion and Money Confidence).
 
@@ -12,15 +14,15 @@ The `?demo` link opens a ready-made account for Sipho, a delivery driver who als
 
 Budgeting apps assume a monthly salary. Millions of South Africans earn from piece work, spaza shops, taxis, deliveries, side hustles and grants instead. Their money arrives in uneven amounts on uneven days, while rent, school transport and stokvel contributions are due on fixed dates. A good Friday can feel like plenty of money, and the shortfall only shows up nine days later.
 
-Imali answers one question every morning: **"How much can I spend today without running short before my next bills?"**
+Madi answers one question every morning: **"How much can I spend today without running short before my next bills?"**
 
 ## What it does
 
 - **Safe to spend today.** A single rand amount, with a status (*on track*, *go carefully* or *essentials only*) and one line explaining why. For example: *"Keeping enough back for School transport (R450) on Thu 5 Nov."*
 - **14-day forecast.** A chart of where your balance is heading on the safe plan compared with spending as usual. Tap a day for details.
-- **Good-day nudge.** On a better-than-usual day, Imali suggests putting a small amount into a buffer, once a day. You can change the amount: the card shows what today's safe amount becomes, and won't let you save so much that food and transport are no longer covered.
+- **Good-day nudge.** On a better-than-usual day, Madi suggests putting a small amount into a buffer, once a day. You can change the amount: the card shows what today's safe amount becomes, and won't let you save so much that food and transport are no longer covered.
 - **Bills.** Monthly bills with due dates. Overdue bills show up first, and you mark them paid with one confirmed tap.
-- **SMS reader with scam check.** Paste a bank or payment SMS and Imali fills in the amount and type. It also warns about scam signs: links, requests for a PIN or OTP, prize claims, pressure to act fast, and "pay a fee to receive money".
+- **SMS reader with scam check.** Paste a bank or payment SMS and Madi fills in the amount and type. It also warns about scam signs: links, requests for a PIN or OTP, prize claims, pressure to act fast, and "pay a fee to receive money".
 - **Insights.** Which weekdays you usually earn most, whether income is trending up or down, your biggest cost, and whether you tend to overspend after a big day.
 - **Four languages.** English, isiZulu, Sesotho and Afrikaans.
 - **Optional PIN lock.** A 4-digit PIN for shared phones. The app locks again after a minute away, and there's a Lock button on the home screen.
@@ -29,18 +31,18 @@ Imali answers one question every morning: **"How much can I spend today without 
 
 Everything runs on the phone. No AI service is involved and nothing is sent anywhere.
 
-1. **Income by weekday.** From your logged income, Imali learns what you usually earn on each day of the week. It keeps both the average and a cautious figure (the 25th percentile, so a slow day).
+1. **Income by weekday.** From your logged income, Madi learns what you usually earn on each day of the week. It keeps both the average and a cautious figure (the 25th percentile, so a slow day).
 2. **Trend.** The last 28 days are compared with earlier weeks, so a slowing month lowers the forecast. The adjustment is capped at ±25%.
 3. **Scheduled income.** Regular monthly money such as a SASSA grant is detected and placed on its date.
 4. **Starting estimate.** Until there's enough history, your own weekly estimate fills the gaps. Its weight fades over 28 days.
-5. **Safe amount.** Over the next 14 days, Imali finds the largest daily amount you could spend so that your balance never drops below zero, assuming only *cautious* income and paying every bill on time.
+5. **Safe amount.** Over the next 14 days, Madi finds the largest daily amount you could spend so that your balance never drops below zero, assuming only *cautious* income and paying every bill on time.
 
 The engine is in [`src/lib/forecast.ts`](src/lib/forecast.ts), and its tests are in [`src/lib/forecast.test.ts`](src/lib/forecast.test.ts).
 
 ## Privacy and security
 
 - **No account and no server.** Data is stored only in the phone's browser (`localStorage`). It can be downloaded as a JSON file or deleted from Settings.
-- **Never asks for banking details.** Imali does not connect to a bank and never asks for a banking PIN, password or OTP.
+- **Never asks for banking details.** Madi does not connect to a bank and never asks for a banking PIN, password or OTP.
 - **PIN lock.** Only a salted SHA-256 hash of the PIN is stored. After five wrong tries you must wait, and the wait doubles with each further miss. The PIN is a privacy screen for shared phones, **not encryption**. A forgotten PIN can't be reset, because there's no account. The only option is to delete the data and start again.
 - **Demo links can't wipe real data.** Opening a `?demo` link on a phone that already has data runs the demo for that visit only. The saved data and PIN stay untouched.
 - **Accidental taps.** Saving to the buffer and marking a bill as paid both ask for confirmation first, and the confirm button sits in a different spot so a double tap can't trigger it.

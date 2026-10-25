@@ -75,7 +75,7 @@ export default function Insights({ ctx, f }: { ctx: Ctx; f: Forecast }) {
 
       <details className="card how">
         <summary>
-          How Imali works out your number <Icon name="chevron" size={18} />
+          How Madi works out your number <Icon name="chevron" size={18} />
         </summary>
         <ol>
           <li>It learns what you earn on each day of the week, and how much a slow day brings in.</li>

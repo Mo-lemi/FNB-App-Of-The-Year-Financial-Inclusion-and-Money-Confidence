@@ -26,7 +26,7 @@ export function LockScreen({ name, onUnlock, onForgot }: { name: string; onUnloc
   }
 
   const forgot = () => {
-    if (confirm('Imali has no account, so a forgotten PIN cannot be reset. The only way in is to delete everything Imali saved on this phone. Delete it and start again?')) onForgot()
+    if (confirm('Madi has no account, so a forgotten PIN cannot be reset. The only way in is to delete everything Madi saved on this phone. Delete it and start again?')) onForgot()
   }
 
   return (
@@ -34,7 +34,7 @@ export function LockScreen({ name, onUnlock, onForgot }: { name: string; onUnloc
       <img className="lock-logo" src={`${import.meta.env.BASE_URL}icon.svg`} alt="" />
       <PinPad
         title={name ? `Welcome back, ${name}` : 'Welcome back'}
-        sub="Enter your Imali PIN"
+        sub="Enter your Madi PIN"
         error={wait ? waitMessage(wait) : errors ? 'That PIN is not right. Try again.' : ''}
         errorCount={errors}
         disabled={wait > 0}
@@ -85,7 +85,7 @@ export function PinSetup({ mode, onDone, onCancel }: { mode: PinMode; onDone: (m
       setStep('confirm')
     } else if (pin === first) {
       await setPin(pin)
-      onDone(mode === 'set' ? 'PIN set. Imali will ask for it when you come back.' : 'PIN changed')
+      onDone(mode === 'set' ? 'PIN set. Madi will ask for it when you come back.' : 'PIN changed')
     } else {
       setStep('new')
       fail('The two PINs did not match. Start again.')

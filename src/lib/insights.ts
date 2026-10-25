@@ -80,7 +80,7 @@ export function buildInsights(data: AppData, f: Forecast): Insight[] {
       id: 'swing',
       icon: 'wave',
       title: 'Your income swings week to week',
-      body: `Over the last ${weeks.length} weeks you earned between ${rand(roundTo(lo, 10))} and ${rand(roundTo(hi, 10))} a week. That's why Imali plans with your slower weeks, not your best ones.`,
+      body: `Over the last ${weeks.length} weeks you earned between ${rand(roundTo(lo, 10))} and ${rand(roundTo(hi, 10))} a week. That's why Madi plans with your slower weeks, not your best ones.`,
       tone: 'info',
     })
   }
