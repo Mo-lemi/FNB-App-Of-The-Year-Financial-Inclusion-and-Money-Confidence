@@ -106,7 +106,7 @@ const af: Dict = {
   navSettings: 'Instellings',
 }
 
-const DICTS: Record<Lang, Dict> = { en, zu, st, af }
+export const DICTS: Record<Lang, Dict> = { en, zu, st, af }
 
 export type TKey = keyof Dict
 export const translator = (lang: Lang) => (key: TKey) => DICTS[lang]?.[key] ?? en[key]

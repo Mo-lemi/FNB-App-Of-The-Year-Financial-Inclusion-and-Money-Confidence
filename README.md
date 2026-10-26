@@ -54,7 +54,7 @@ You need Node 22 or later.
 ```bash
 npm install
 npm run dev      # http://localhost:5173  (add ?demo for the sample account)
-npm test         # forecast, SMS parser and PIN lock tests
+npm test         # 60 unit tests: forecast, SMS and scam reader, PIN lock, storage, dates, translations
 npm run build    # type-check and production build into dist/
 ```
 

@@ -105,6 +105,37 @@ describe('forecast', () => {
   })
 })
 
+describe('forecast status', () => {
+  it('says "on track" when there is plenty of money', () => {
+    const f = forecast(base({ profile: { ...base().profile!, openingBalance: 20000 } }), TODAY)
+    expect(f.status).toBe('good')
+  })
+
+  it('says "essentials only" when a big bill eats almost everything', () => {
+    const f = forecast(base({ bills: [{ id: 'r', name: 'Rent', amount: 3500, dayOfMonth: 26 }] }), TODAY)
+    expect(f.status).toBe('survival')
+    expect(f.nudge).toBeNull()
+    expect(maxSave(base({ bills: [{ id: 'r', name: 'Rent', amount: 3500, dayOfMonth: 26 }] }), TODAY)).toBe(0)
+  })
+
+  it('grows more confident as history builds up', () => {
+    expect(forecast(base(), TODAY).confidence).toBe('learning')
+    expect(forecast(buildDemo(TODAY), TODAY).confidence).toBe('strong')
+  })
+
+  it('ignores entries dated in the future', () => {
+    const later: Txn = { id: 'x', date: addDays(TODAY, 3), kind: 'expense', amount: 900, category: 'food' }
+    expect(forecast(base({ txns: [later] }), TODAY).balance).toBe(forecast(base(), TODAY).balance)
+  })
+
+  it('keeps buffer savings out of what is safe to spend', () => {
+    const saved: Txn = { id: 's', date: TODAY, kind: 'save', amount: 300, category: 'buffer' }
+    const f = forecast(base({ txns: [saved] }), TODAY)
+    expect(f.buffer).toBe(300)
+    expect(f.safeToday).toBeLessThan(forecast(base(), TODAY).safeToday)
+  })
+})
+
 describe('detectScheduled', () => {
   it('finds a monthly grant but not daily work income', () => {
     const txns: Txn[] = []
@@ -117,6 +148,20 @@ describe('detectScheduled', () => {
 })
 
 describe('insights', () => {
+  it('tells a brand-new user it is still learning', () => {
+    const data = base()
+    const ids = buildInsights(data, forecast(data, TODAY)).map((i) => i.id)
+    expect(ids).toContain('learning')
+    expect(ids).not.toContain('best-days')
+  })
+
+  it('finds best days, the falling trend and the grant in the demo', () => {
+    const data = buildDemo(TODAY)
+    const ids = buildInsights(data, forecast(data, TODAY)).map((i) => i.id)
+    expect(ids).toEqual(expect.arrayContaining(['best-days', 'trend']))
+    expect(ids.some((id) => id.startsWith('sched-'))).toBe(true)
+  })
+
   it('produces several insights for the demo', () => {
     const data = buildDemo(TODAY)
     const ids = buildInsights(data, forecast(data, TODAY)).map((i) => i.id)
