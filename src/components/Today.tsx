@@ -17,10 +17,8 @@ interface Props {
 /** One sentence under the number explaining why it is what it is. */
 function reason(f: Forecast): string {
   if (f.confidence === 'learning') return 'Based on your estimate for now. It gets sharper as you log your days.'
-  if (f.pinch?.bills.length) {
-    const b = f.pinch.bills[0]
-    return `Keeping enough back for ${b.name} (${rand(b.amount)}) on ${shortDate(f.pinch.date)}.`
-  }
+  const bill = f.pinch?.mainBill
+  if (bill) return `Keeping enough back for ${bill.name} (${rand(bill.amount)}) on ${shortDate(bill.date)}.`
   if (f.pinch) return `Your slower days catch up with you around ${shortDate(f.pinch.date)}, so this plays it safe.`
   if (f.leanWeek) return 'A slow week is coming, so this plays it safe.'
   return 'Your bills for the next 14 days are covered.'
@@ -63,6 +61,7 @@ export default function Today({ ctx, f, t }: Props) {
       <section className={`card hero ${f.status}`} aria-live="polite">
         <div className="label">{t('safeToday')}</div>
         <div className="amount">{rand(f.safeToday)}</div>
+        {f.spentToday > 0 && <div className="amount-note">more, on top of the {rand(f.spentToday)} you've spent today</div>}
         <div className="status">{t(f.status)}</div>
         <p className="reason">{reason(f)}</p>
         <dl className="hero-stats">
@@ -216,7 +215,8 @@ function SaveCard({ ctx, f, title }: { ctx: Ctx; f: Forecast; title: string }) {
   const amount = Number(value)
   const tooMuch = amount > limit
   const after = amount > 0 ? safeAfterSaving(ctx.data, f.today, amount) : null
-  const until = f.pinch?.bills.length ? `until ${f.pinch.bills[0].name} on ${shortDate(f.pinch.date)}` : 'for the next two weeks'
+  const bill = f.pinch?.mainBill
+  const until = bill ? `until ${bill.name} on ${shortDate(bill.date)}` : 'for the next two weeks'
 
   if (!asking)
     return (
@@ -228,6 +228,7 @@ function SaveCard({ ctx, f, title }: { ctx: Ctx; f: Forecast; title: string }) {
           <h2>{title}</h2>
           <p>
             You earned {rand(nudge.earned)}, more than your usual {rand(nudge.typical)}.
+            {bill && ` ${bill.name} on ${shortDate(bill.date)} is already planned for.`}
           </p>
         </div>
         <button

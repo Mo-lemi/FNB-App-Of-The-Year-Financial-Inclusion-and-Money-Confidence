@@ -45,6 +45,17 @@ describe('forecast', () => {
     expect(withRent.pinch?.bills[0]?.name).toBe('Rent')
   })
 
+  it('names the bill behind the tight spot, even when the tightest day comes after it', () => {
+    for (let i = 0; i < 60; i += 5) {
+      const day = addDays(TODAY, i)
+      const f = forecast(buildDemo(day), day)
+      const bill = f.pinch!.mainBill!
+      expect(bill, day).not.toBeNull()
+      expect(bill.date <= f.pinch!.date, day).toBe(true)
+      expect(f.days.find((d) => d.date === bill.date)!.bills.some((b) => b.name === bill.name), day).toBe(true)
+    }
+  })
+
   it('treats a bill that is already paid as handled', () => {
     const bills = [{ id: 'r', name: 'Rent', amount: 1500, dayOfMonth: 26 }]
     const paid: Txn = { id: 'p', date: TODAY, kind: 'expense', amount: 1500, category: 'bills', note: 'rent' }

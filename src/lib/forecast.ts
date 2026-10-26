@@ -52,7 +52,7 @@ export interface Forecast {
   status: Status
   essentialsPerDay: number
   days: DayForecast[]
-  pinch: { date: string; bills: Bill[]; balanceBefore: number } | null
+  pinch: { date: string; bills: Bill[]; balanceBefore: number; mainBill: { name: string; amount: number; date: string } | null } | null
   leanWeek: { income: number; bills: number; typical: number } | null
   nudge: { amount: number; earned: number; typical: number } | null
   expectedByDow: number[]
@@ -250,11 +250,17 @@ export function forecast(data: AppData, today: string): Forecast {
   })
 
   const pinchDay = pinchIndex >= 0 ? days[pinchIndex] : null
+  // The tightest day often comes a day or two after the bill that causes it, so name the
+  // biggest bill on or before that day rather than only bills on the day itself.
+  let mainBill: { name: string; amount: number; date: string } | null = null
+  for (const d of days.slice(0, pinchIndex + 1))
+    for (const b of d.bills) if (!mainBill || b.amount > mainBill.amount) mainBill = { name: b.name, amount: b.amount, date: d.date }
   const pinch = pinchDay
     ? {
         date: pinchDay.date,
         bills: pinchDay.bills,
         balanceBefore: pinchIndex > 0 ? days[pinchIndex - 1].safeBalance : available - safeToday,
+        mainBill,
       }
     : null
 

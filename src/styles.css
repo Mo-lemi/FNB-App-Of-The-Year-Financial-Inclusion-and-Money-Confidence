@@ -87,6 +87,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .hero.survival { background: var(--bad-bg); }
 .hero .label { font-size: 0.9375rem; font-weight: 600; color: var(--muted); }
 .hero .amount { font-size: 3.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 6px 0 8px; font-variant-numeric: tabular-nums; }
+.hero .amount-note { font-size: 0.875rem; color: var(--muted); margin: -6px 0 10px; }
 .hero .status { display: inline-block; font-size: 0.8125rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: var(--surface); }
 .hero.good .amount, .hero.good .status { color: var(--good); }
 .hero.tight .amount, .hero.tight .status { color: var(--tight); }
