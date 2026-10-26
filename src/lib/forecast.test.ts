@@ -89,6 +89,16 @@ describe('forecast', () => {
     expect(forecast(data, TODAY).nudge).toBeNull()
   })
 
+  it('tells the same demo story whichever day the judges open it', () => {
+    for (let i = 0; i < 365; i += 3) {
+      const day = addDays(TODAY, i)
+      const f = forecast(buildDemo(day), day)
+      expect(f.status, day).not.toBe('survival')
+      expect(f.overdueBills, day).toHaveLength(0)
+      expect(f.nudge, day).not.toBeNull()
+    }
+  })
+
   it('detects the falling trend in the demo', () => {
     const f = forecast(buildDemo(TODAY), TODAY)
     expect(f.trend).toBeLessThan(1)

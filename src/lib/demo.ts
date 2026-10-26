@@ -8,6 +8,9 @@ import { roundTo } from './money'
  * weekend car-wash side hustle and a monthly child support grant. Earnings dipped over the last
  * three weeks (rainy season), and rent is due soon, so the forecast has something to say.
  * Generated relative to `today` so the demo always looks current; seeded so it is repeatable.
+ * Bill and grant dates are placed relative to `today` too, so judges see the same story
+ * whichever day they open it: stokvel due tomorrow, rent in 8 days, grant in 10, school
+ * transport in 12.
  */
 
 function mulberry32(seed: number) {
@@ -21,17 +24,22 @@ function mulberry32(seed: number) {
 }
 
 const DAYS = 90
-const TARGET_BALANCE = 2100
+const TARGET_BALANCE = 2400
 // Typical delivery earnings by weekday, Sun..Sat
 const DELIVERY_BASE = [260, 150, 140, 160, 180, 320, 340]
 
-export const DEMO_BILLS: Bill[] = [
-  { id: 'b-rent', name: 'Rent', amount: 1800, dayOfMonth: 1 },
-  { id: 'b-school', name: 'School transport', amount: 450, dayOfMonth: 5 },
-  { id: 'b-stokvel', name: 'Stokvel', amount: 500, dayOfMonth: 25 },
-]
+function demoBills(today: string): Bill[] {
+  const dayIn = (days: number) => dom(addDays(today, days))
+  return [
+    { id: 'b-rent', name: 'Rent', amount: 1800, dayOfMonth: dayIn(8) },
+    { id: 'b-school', name: 'School transport', amount: 450, dayOfMonth: dayIn(12) },
+    { id: 'b-stokvel', name: 'Stokvel', amount: 500, dayOfMonth: dayIn(1) },
+  ]
+}
 
 export function buildDemo(today: string): AppData {
+  const bills = demoBills(today)
+  const grantDay = dom(addDays(today, 10))
   const rng = mulberry32(2026)
   const between = (lo: number, hi: number) => lo + rng() * (hi - lo)
   const txns: Txn[] = []
@@ -69,10 +77,11 @@ export function buildDemo(today: string): AppData {
         earned += amt
       }
     }
-    if (d === 3) add(date, 'income', 560, 'grant', 'Child support grant')
+    const grantToday = isDueOn(grantDay, date)
+    if (grantToday) add(date, 'income', 560, 'grant', 'Child support grant')
 
     // Bills
-    for (const b of DEMO_BILLS) if (isDueOn(b.dayOfMonth, date) && !isToday) add(date, 'expense', b.amount, 'bills', b.name)
+    for (const b of bills) if (isDueOn(b.dayOfMonth, date) && !isToday) add(date, 'expense', b.amount, 'bills', b.name)
 
     // Everyday spending
     add(date, 'expense', roundTo(between(35, 95), 5), 'food', 'Food')
@@ -80,7 +89,7 @@ export function buildDemo(today: string): AppData {
     if (isToday) continue
 
     if (rng() < 0.3) add(date, 'expense', [12, 29, 49, 99][Math.floor(rng() * 4)], 'airtime', 'Data bundle')
-    if (d >= 3 && d <= 4 && rng() < 0.6) add(date, 'expense', roundTo(between(550, 750), 10), 'food', 'Monthly groceries')
+    if ((grantToday || isDueOn(grantDay, addDays(date, -1))) && rng() < 0.6) add(date, 'expense', roundTo(between(550, 750), 10), 'food', 'Monthly groceries')
     if (d === 15 || d === 28) add(date, 'expense', 300, 'family', 'Sent home')
     if (w === 1) add(date, 'expense', roundTo(between(150, 220), 10), 'household', 'Prepaid electricity')
     if (yesterdayIncome > 450 && rng() < 0.65) add(date, 'expense', roundTo(between(60, 180), 10), 'other', 'Takeaways & treats')
@@ -101,6 +110,6 @@ export function buildDemo(today: string): AppData {
       isDemo: true,
     },
     txns,
-    bills: DEMO_BILLS.map((b) => ({ ...b })),
+    bills,
   }
 }
