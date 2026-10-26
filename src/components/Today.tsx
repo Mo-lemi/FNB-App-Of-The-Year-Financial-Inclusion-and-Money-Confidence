@@ -124,7 +124,8 @@ export default function Today({ ctx, f, t }: Props) {
         <ForecastChart f={f} />
         {usualLow && usualLow.expectedBalance < 0 && (
           <p className="chart-note">
-            Spending as usual, you'd be <b>{rand(-usualLow.expectedBalance)} short</b> by {shortDate(usualLow.date)}.
+            Spending as usual, you'd be <b>{rand(-usualLow.expectedBalance)} short</b> by {shortDate(usualLow.date)}. Stick to{' '}
+            {rand(f.safeToday)} a day and you stay covered.
           </p>
         )}
       </section>
@@ -291,10 +292,17 @@ function SaveCard({ ctx, f, title }: { ctx: Ctx; f: Forecast; title: string }) {
 /** One tap shows the sum behind the number, so people can check it instead of trusting it blindly. */
 function Workings({ f }: { f: Forecast }) {
   const { available, income, bills, billNames, days, until } = f.explain
-  const period = until ? `until ${shortDate(until)}` : 'today'
+  const bill = f.pinch?.mainBill
+  // The tightest day can fall just after the bill that causes it; say so, so the two dates agree.
+  const after = bill && until && bill.date < until ? `, just after ${bill.name}` : ''
   return (
     <details className="workings">
       <summary>How is this worked out?</summary>
+      {until && (
+        <p className="lookahead">
+          Looking ahead to {shortDate(until)}, your tightest day{after}.
+        </p>
+      )}
       <dl>
         <div>
           <dt>Money you have now</dt>
@@ -302,13 +310,13 @@ function Workings({ f }: { f: Forecast }) {
         </div>
         {income > 0 && (
           <div>
-            <dt>Income {period}, if work is slow</dt>
+            <dt>Income by then, if work is slow</dt>
             <dd>+{rand(income)}</dd>
           </div>
         )}
         {bills > 0 && (
           <div>
-            <dt>Bills {period} ({billNames.join(', ')})</dt>
+            <dt>Bills by then ({billNames.join(', ')})</dt>
             <dd>−{rand(bills)}</dd>
           </div>
         )}
@@ -319,6 +327,7 @@ function Workings({ f }: { f: Forecast }) {
       </dl>
       <p>
         Madi counts on your slow days, not your average ones.
+        {until && income > 0 && ` If you earn less than ${rand(income)} by ${shortDate(until)}, this number goes down.`}
         {f.buffer > 0 && ` Your ${rand(f.buffer)} buffer is kept out of this for emergencies.`}
       </p>
     </details>

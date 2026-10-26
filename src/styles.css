@@ -91,6 +91,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .workings { margin: 12px auto 0; max-width: 380px; text-align: left; font-size: 0.875rem; }
 .workings summary { cursor: pointer; text-align: center; color: var(--muted); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; list-style: none; padding: 6px; }
 .workings summary::-webkit-details-marker { display: none; }
+.workings .lookahead { text-align: center; margin: 4px 0 0; }
 .workings dl { margin: 8px 0 6px; display: grid; gap: 6px; }
 .workings dl > div { display: flex; justify-content: space-between; gap: 12px; }
 .workings dt { color: var(--muted); }
