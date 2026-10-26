@@ -56,6 +56,15 @@ describe('forecast', () => {
     }
   })
 
+  it('explains the safe amount with a sum anyone can check', () => {
+    for (const day of [TODAY, addDays(TODAY, 9), addDays(TODAY, 20)]) {
+      const f = forecast(buildDemo(day), day)
+      const { available, income, bills, days } = f.explain
+      expect(f.safeToday, day).toBe(Math.max(0, Math.floor((available + income - bills) / days / 5) * 5))
+      expect(f.explain.billNames.length, day).toBeGreaterThan(0)
+    }
+  })
+
   it('treats a bill that is already paid as handled', () => {
     const bills = [{ id: 'r', name: 'Rent', amount: 1500, dayOfMonth: 26 }]
     const paid: Txn = { id: 'p', date: TODAY, kind: 'expense', amount: 1500, category: 'bills', note: 'rent' }

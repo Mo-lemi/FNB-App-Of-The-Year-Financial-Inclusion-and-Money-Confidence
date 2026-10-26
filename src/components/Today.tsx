@@ -64,6 +64,7 @@ export default function Today({ ctx, f, t }: Props) {
         {f.spentToday > 0 && <div className="amount-note">more, on top of the {rand(f.spentToday)} you've spent today</div>}
         <div className="status">{t(f.status)}</div>
         <p className="reason">{reason(f)}</p>
+        <Workings f={f} />
         <dl className="hero-stats">
           <div>
             <dt>{t('spentToday')}</dt>
@@ -284,5 +285,42 @@ function SaveCard({ ctx, f, title }: { ctx: Ctx; f: Forecast; title: string }) {
         </button>
       </div>
     </section>
+  )
+}
+
+/** One tap shows the sum behind the number, so people can check it instead of trusting it blindly. */
+function Workings({ f }: { f: Forecast }) {
+  const { available, income, bills, billNames, days, until } = f.explain
+  const period = until ? `until ${shortDate(until)}` : 'today'
+  return (
+    <details className="workings">
+      <summary>How is this worked out?</summary>
+      <dl>
+        <div>
+          <dt>Money you have now</dt>
+          <dd>{rand(available)}</dd>
+        </div>
+        {income > 0 && (
+          <div>
+            <dt>Income {period}, if work is slow</dt>
+            <dd>+{rand(income)}</dd>
+          </div>
+        )}
+        {bills > 0 && (
+          <div>
+            <dt>Bills {period} ({billNames.join(', ')})</dt>
+            <dd>−{rand(bills)}</dd>
+          </div>
+        )}
+        <div className="total">
+          <dt>Shared over {days} {days === 1 ? 'day' : 'days'}, today included</dt>
+          <dd>{rand(f.safeToday)} a day</dd>
+        </div>
+      </dl>
+      <p>
+        Madi counts on your slow days, not your average ones.
+        {f.buffer > 0 && ` Your ${rand(f.buffer)} buffer is kept out of this for emergencies.`}
+      </p>
+    </details>
   )
 }

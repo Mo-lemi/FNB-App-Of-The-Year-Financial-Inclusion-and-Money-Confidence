@@ -88,6 +88,16 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .hero .label { font-size: 0.9375rem; font-weight: 600; color: var(--muted); }
 .hero .amount { font-size: 3.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 6px 0 8px; font-variant-numeric: tabular-nums; }
 .hero .amount-note { font-size: 0.875rem; color: var(--muted); margin: -6px 0 10px; }
+.workings { margin: 12px auto 0; max-width: 380px; text-align: left; font-size: 0.875rem; }
+.workings summary { cursor: pointer; text-align: center; color: var(--muted); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; list-style: none; padding: 6px; }
+.workings summary::-webkit-details-marker { display: none; }
+.workings dl { margin: 8px 0 6px; display: grid; gap: 6px; }
+.workings dl > div { display: flex; justify-content: space-between; gap: 12px; }
+.workings dt { color: var(--muted); }
+.workings dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.workings .total { border-top: 1px solid var(--border); padding-top: 6px; }
+.workings .total dt { color: var(--text); font-weight: 600; }
+.workings p { color: var(--muted); font-size: 0.8125rem; }
 .hero .status { display: inline-block; font-size: 0.8125rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: var(--surface); }
 .hero.good .amount, .hero.good .status { color: var(--good); }
 .hero.tight .amount, .hero.tight .status { color: var(--tight); }
@@ -182,6 +192,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .segmented button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--border); background: var(--surface); padding: 8px 14px; border-radius: 999px; font-size: 0.875rem; min-height: 40px; }
+.quick-amounts { margin: -6px 0 16px; }
 .chip.on { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
 .row { display: flex; gap: 8px; align-items: flex-end; }
 .row > * { flex: 1; }

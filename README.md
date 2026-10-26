@@ -18,9 +18,10 @@ Madi answers one question every morning: **"How much can I spend today without r
 
 ## What it does
 
-- **Safe to spend today.** A single rand amount, with a status (*on track*, *go carefully* or *essentials only*) and one line explaining why. For example: *"Keeping enough back for School transport (R450) on Thu 5 Nov."*
+- **Safe to spend today.** A single rand amount, with a status (*on track*, *go carefully* or *essentials only*) and one line explaining why. For example: *"Keeping enough back for School transport (R450) on Thu 5 Nov."* One tap on "How is this worked out?" shows the sum behind it.
 - **14-day forecast.** A chart of where your balance is heading on the safe plan compared with spending as usual. Tap a day for details.
 - **Good-day nudge.** On a better-than-usual day, Madi suggests putting a small amount into a buffer, once a day. You can change the amount: the card shows what today's safe amount becomes, and won't let you save so much that food and transport are no longer covered.
+- **Two-tap logging.** Madi learns the entries you log most ("Food R70", "Fuel R60") and turns them into buttons, plus quick amounts (R20 to R200).
 - **Bills.** Monthly bills with due dates. Overdue bills show up first, and you mark them paid with one confirmed tap.
 - **SMS reader with scam check.** Paste a bank or payment SMS and Madi fills in the amount and type. It also warns about scam signs: links, requests for a PIN or OTP, prize claims, pressure to act fast, and "pay a fee to receive money".
 - **Insights.** Which weekdays you usually earn most, whether income is trending up or down, your biggest cost, and whether you tend to overspend after a big day.
@@ -54,7 +55,7 @@ You need Node 22 or later.
 ```bash
 npm install
 npm run dev      # http://localhost:5173  (add ?demo for the sample account)
-npm test         # 60 unit tests: forecast, SMS and scam reader, PIN lock, storage, dates, translations
+npm test         # 65 unit tests: forecast, SMS and scam reader, PIN lock, storage, dates, translations
 npm run build    # type-check and production build into dist/
 ```
 

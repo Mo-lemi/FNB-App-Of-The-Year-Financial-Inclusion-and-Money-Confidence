@@ -53,6 +53,8 @@ export interface Forecast {
   essentialsPerDay: number
   days: DayForecast[]
   pinch: { date: string; bills: Bill[]; balanceBefore: number; mainBill: { name: string; amount: number; date: string } | null } | null
+  /** The sum behind safeToday: (available + income - bills) / days, for the "how is this worked out" view. */
+  explain: { available: number; income: number; bills: number; billNames: string[]; days: number; until: string | null }
   leanWeek: { income: number; bills: number; typical: number } | null
   nudge: { amount: number; earned: number; typical: number } | null
   expectedByDow: number[]
@@ -249,6 +251,16 @@ export function forecast(data: AppData, today: string): Forecast {
     return { ...p, expectedBalance, safeBalance }
   })
 
+  const upToPinch = plan.slice(0, pinchIndex + 1)
+  const explain = {
+    available,
+    income: upToPinch.reduce((a, p) => a + p.cautiousIncome, 0),
+    bills: upToPinch.reduce((a, p) => a + p.billTotal, 0),
+    billNames: [...new Set(upToPinch.flatMap((p) => p.bills.map((b) => b.name)))],
+    days: pinchIndex + 2,
+    until: pinchIndex >= 0 ? plan[pinchIndex].date : null,
+  }
+
   const pinchDay = pinchIndex >= 0 ? days[pinchIndex] : null
   // The tightest day often comes a day or two after the bill that causes it, so name the
   // biggest bill on or before that day rather than only bills on the day itself.
@@ -303,6 +315,7 @@ export function forecast(data: AppData, today: string): Forecast {
     essentialsPerDay: roundTo(essentialsPerDay, 5),
     days,
     pinch,
+    explain,
     leanWeek,
     nudge,
     expectedByDow,

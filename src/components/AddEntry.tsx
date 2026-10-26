@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Ctx } from '../App'
 import type { TKey } from '../lib/i18n'
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../lib/types'
 import { parseSms, type ParsedSms } from '../lib/sms'
 import { rand } from '../lib/money'
+import { usualEntries } from '../lib/usual'
 import { categoryLabel } from './TxnList'
 import Icon from './Icon'
 
@@ -24,6 +25,7 @@ export default function AddEntry({ ctx, t, today }: Props) {
   const [showSms, setShowSms] = useState(false)
 
   const cats = kind === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
+  const usual = useMemo(() => usualEntries(ctx.data.txns, kind, today), [ctx.data.txns, kind, today])
   const value = Number(amount.replace(',', '.'))
   const valid = value > 0 && date <= today
 
@@ -112,6 +114,31 @@ export default function AddEntry({ ctx, t, today }: Props) {
         </button>
       </div>
 
+      {usual.length > 0 && (
+        <div className="field">
+          <span>Your usual</span>
+          <div className="chips">
+            {usual.map((u) => {
+              const on = category === u.category && note === (u.note ?? '') && value === u.amount
+              return (
+                <button
+                  key={`${u.category}-${u.note}`}
+                  className={`chip ${on ? 'on' : ''}`}
+                  aria-pressed={on}
+                  onClick={() => {
+                    setCategory(u.category)
+                    setNote(u.note ?? '')
+                    setAmount(String(u.amount))
+                  }}
+                >
+                  {u.note ?? categoryLabel(u.category)} · {rand(u.amount)}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       <label className="field">
         <span>Amount (R)</span>
         <input
@@ -123,6 +150,13 @@ export default function AddEntry({ ctx, t, today }: Props) {
           autoFocus
         />
       </label>
+      <div className="chips quick-amounts" aria-label="Quick amounts">
+        {[20, 50, 100, 200].map((n) => (
+          <button key={n} className={`chip ${value === n ? 'on' : ''}`} aria-pressed={value === n} onClick={() => setAmount(String(n))}>
+            {rand(n)}
+          </button>
+        ))}
+      </div>
 
       <div className="field">
         <span>Category</span>
