@@ -61,6 +61,7 @@ export default function Settings({ ctx, f, today }: { ctx: Ctx; f: Forecast; tod
               </option>
             ))}
           </select>
+          <div className="hint">Main screens are translated. More text, and Setswana, are coming.</div>
         </label>
         <div className="row">
           <label className="field">

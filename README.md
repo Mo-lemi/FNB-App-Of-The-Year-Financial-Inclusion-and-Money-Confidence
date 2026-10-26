@@ -24,7 +24,7 @@ Madi answers one question every morning: **"How much can I spend today without r
 - **Bills.** Monthly bills with due dates. Overdue bills show up first, and you mark them paid with one confirmed tap.
 - **SMS reader with scam check.** Paste a bank or payment SMS and Madi fills in the amount and type. It also warns about scam signs: links, requests for a PIN or OTP, prize claims, pressure to act fast, and "pay a fee to receive money".
 - **Insights.** Which weekdays you usually earn most, whether income is trending up or down, your biggest cost, and whether you tend to overspend after a big day.
-- **Four languages.** English, isiZulu, Sesotho and Afrikaans.
+- **Main screens in four languages.** English, isiZulu, Sesotho and Afrikaans for the main labels; full translation and Setswana are next.
 - **Optional PIN lock.** A 4-digit PIN for shared phones. The app locks again after a minute away, and there's a Lock button on the home screen.
 
 ## How the number is worked out

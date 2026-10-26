@@ -83,6 +83,7 @@ export default function Onboarding({ onDone }: { onDone: (d: AppData) => void })
                 </option>
               ))}
             </select>
+            <div className="hint">Main screens are translated. More text, and Setswana, are coming.</div>
           </label>
           <label className="field">
             <span>How much money do you have right now?</span>
